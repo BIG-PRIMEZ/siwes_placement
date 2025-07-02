@@ -1,0 +1,85 @@
+<!-- templates/home.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">Welcome to SIWES Placement Portal</h1>
+                <p class="lead mb-4">Connect with top companies for your Student Industrial Work Experience Scheme (SIWES). Find the perfect placement to kickstart your career!</p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Get Started
+                        </a>
+                        <a href="{% url 'job_list' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Browse Jobs
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'job_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-briefcase me-2"></i>Explore Opportunities
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Features Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h5 class="card-title">Find Perfect Match</h5>
+                    <p class="card-text">Browse through hundreds of SIWES opportunities from top companies across various industries.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-3">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <h5 class="card-title">Easy Application</h5>
+                    <p class="card-text">Apply directly to companies with one click. Your application is sent instantly to employers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-3">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5 class="card-title">Track Progress</h5>
+                    <p class="card-text">Monitor your applications and receive updates on your SIWES placement journey.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    {% if not user.is_authenticated %}
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="card bg-light">
+                <div class="card-body p-5">
+                    <h3 class="mb-4">Ready to Start Your SIWES Journey?</h3>
+                    <p class="lead mb-4">Join thousands of students who have found their perfect industrial training placement through our platform.</p>
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket me-2"></i>Register Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

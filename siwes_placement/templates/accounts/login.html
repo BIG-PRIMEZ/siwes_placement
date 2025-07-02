@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - SIWES Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-sign-in-alt me-2"></i>Login</h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- IMPORTANT: Make sure this form has proper CSRF token -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Manual form fields with proper CSRF -->
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" id="id_username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="id_password" required>
+                        </div>
+                        
+                        <!-- Display form errors if any -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Debug CSRF token
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            console.log('CSRF token found:', csrfToken.value);
+        } else {
+            console.error('CSRF token not found!');
+        }
+        
+        // Check if form is properly set up
+        const form = document.querySelector('form[method="post"]');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+                if (!csrfInput || !csrfInput.value) {
+                    e.preventDefault();
+                    alert('CSRF token missing! Please refresh the page and try again.');
+                    return false;
+                }
+                console.log('Form submitted with CSRF token:', csrfInput.value);
+            });
+        }
+    });
+</script>
+{% endblock %}

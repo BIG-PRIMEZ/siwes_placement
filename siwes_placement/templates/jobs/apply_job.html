@@ -1,0 +1,118 @@
+<!-- templates/jobs/apply_job.html -->
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Apply - {{ job.title }} - SIWES Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-paper-plane me-2"></i>Apply for {{ job.title }}
+                    </h4>
+                    <small>at {{ job.company.name }}</small>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Your application will be sent directly to <strong>{{ job.company.email }}</strong>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" id="applicationForm">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6>Your Information</h6>
+                                <p><strong>Name:</strong> {{ user.get_full_name }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                <p><strong>Institution:</strong> {{ user.institution }}</p>
+                                <p><strong>Course:</strong> {{ user.course_of_study }}</p>
+                                <p><strong>Year:</strong> {{ user.year_of_study }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Position Details</h6>
+                                <p><strong>Position:</strong> {{ job.title }}</p>
+                                <p><strong>Company:</strong> {{ job.company.name }}</p>
+                                <p><strong>Location:</strong> {{ job.location }}</p>
+                                <p><strong>Duration:</strong> {{ job.get_duration_display }}</p>
+                                <p><strong>Deadline:</strong> {{ job.application_deadline }}</p>
+                            </div>
+                        </div>
+
+                        {{ form|crispy }}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Application
+                            </button>
+                            <a href="{% url 'job_detail' job.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Job Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Form validation
+    document.getElementById('applicationForm').addEventListener('submit', function(e) {
+        const coverLetter = document.querySelector('textarea[name="cover_letter"]').value.trim();
+        const resume = document.querySelector('input[name="resume"]').files[0];
+        
+        if (coverLetter.length < 50) {
+            e.preventDefault();
+            alert('Please write a more detailed cover letter (at least 50 characters).');
+            return false;
+        }
+        
+        if (!resume) {
+            e.preventDefault();
+            alert('Please upload your resume.');
+            return false;
+        }
+        
+        // Check file size (5MB limit)
+        if (resume.size > 5 * 1024 * 1024) {
+            e.preventDefault();
+            alert('Resume file size should be less than 5MB.');
+            return false;
+        }
+        
+        // Check file type
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedTypes.includes(resume.type)) {
+            e.preventDefault();
+            alert('Please upload your resume in PDF or Word format.');
+            return false;
+        }
+    });
+    
+    // Character counter for cover letter
+    const coverLetterTextarea = document.querySelector('textarea[name="cover_letter"]');
+    const charCount = document.createElement('small');
+    charCount.className = 'text-muted';
+    coverLetterTextarea.parentNode.appendChild(charCount);
+    
+    function updateCharCount() {
+        const count = coverLetterTextarea.value.length;
+        charCount.textContent = `${count} characters`;
+        if (count < 50) {
+            charCount.className = 'text-danger';
+        } else {
+            charCount.className = 'text-muted';
+        }
+    }
+    
+    coverLetterTextarea.addEventListener('input', updateCharCount);
+    updateCharCount();
+</script>
+{% endblock %}
+{% endblock %}

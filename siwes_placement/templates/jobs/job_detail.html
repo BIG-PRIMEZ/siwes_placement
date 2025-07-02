@@ -1,0 +1,156 @@
+<!-- templates/jobs/job_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - SIWES Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-4">
+                        {% if job.company.logo %}
+                            <img src="{{ job.company.logo.url }}" class="me-3 rounded" style="max-height: 100px;" alt="{{ job.company.name }}">
+                        {% else %}
+                            <div class="bg-light rounded p-3 me-3">
+                                <i class="fas fa-building fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h2 class="mb-2">{{ job.title }}</h2>
+                            <h4 class="text-primary">{{ job.company.name }}</h4>
+                            <div class="d-flex gap-2 flex-wrap mt-3">
+                                <span class="badge bg-secondary fs-6">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}
+                                </span>
+                                <span class="badge bg-info fs-6">
+                                    <i class="fas fa-clock me-1"></i>{{ job.get_duration_display }}
+                                </span>
+                                {% if job.stipend %}
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-money-bill me-1"></i>₦{{ job.stipend }}/month
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="fas fa-info-circle me-2"></i>Job Description</h5>
+                        <p class="text-muted">{{ job.description|linebreaks }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="fas fa-list-check me-2"></i>Requirements</h5>
+                        <p class="text-muted">{{ job.requirements|linebreaks }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="fas fa-building me-2"></i>About {{ job.company.name }}</h5>
+                        <p class="text-muted">{{ job.company.description|linebreaks }}</p>
+                        {% if job.company.website %}
+                        <p><strong>Website:</strong> <a href="{{ job.company.website }}" target="_blank" class="text-primary">{{ job.company.website }}</a></p>
+                        {% endif %}
+                        <p><strong>Address:</strong> {{ job.company.address }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Apply for this Position</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        {% if not has_applied %}
+                            <div class="mb-3">
+                                <strong>Application Deadline:</strong><br>
+                                <span class="text-danger">{{ job.application_deadline }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Posted:</strong><br>
+                                <span class="text-muted">{{ job.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="d-grid">
+                                <a href="{% url 'apply_job' job.pk %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Apply Now
+                                </a>
+                            </div>
+                            <div class="alert alert-info mt-3">
+                                <small><i class="fas fa-info-circle me-1"></i>Your application will be sent directly to the company's email.</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>You have already applied for this position.
+                            </div>
+                            <div class="d-grid">
+                                <a href="{% url 'my_applications' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-2"></i>View My Applications
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted mb-3">Please login to apply for this position.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'login' %}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a>
+                            <a href="{% url 'register' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Company Contact Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-address-card me-2"></i>Company Contact</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        <small>{{ job.company.email }}</small>
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <small>{{ job.company.phone }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Add countdown timer for application deadline
+    const deadline = new Date('{{ job.application_deadline|date:"Y-m-d" }}').getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = deadline - now;
+        
+        if (distance > 0) {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            if (days > 0) {
+                document.querySelector('.text-danger').innerHTML = 
+                    '{{ job.application_deadline|date:"M d, Y" }} <small class="text-muted">(' + days + ' days remaining)</small>';
+            } else if (hours > 0) {
+                document.querySelector('.text-danger').innerHTML = 
+                    '{{ job.application_deadline|date:"M d, Y" }} <small class="text-warning">(' + hours + ' hours remaining)</small>';
+            }
+        }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 3600000); // Update every hour
+</script>
+{% endblock %}
+{% endblock %}
